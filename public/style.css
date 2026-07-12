@@ -42,7 +42,7 @@ body{
 .podium{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:end; margin-bottom:28px;}
 .pod-card{
   background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px 14px 16px;
-  text-align:center; position:relative; overflow:hidden; opacity:0; transform:translateY(16px);
+  text-align:center; position:relative; overflow:hidden; opacity:1; transform:translateY(0px);
   
 }
 .pod-card:nth-child(1){animation-delay:.05s;}
