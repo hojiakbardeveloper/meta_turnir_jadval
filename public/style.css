@@ -43,7 +43,7 @@ body{
 .pod-card{
   background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px 14px 16px;
   text-align:center; position:relative; overflow:hidden; opacity:0; transform:translateY(16px);
-  animation:rise .5s ease forwards;
+  
 }
 .pod-card:nth-child(1){animation-delay:.05s;}
 .pod-card:nth-child(2){animation-delay:.15s;}
