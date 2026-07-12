@@ -47,7 +47,23 @@ Saqlagan har bir ball darhol reyting sahifasida ko'rinadi (u 5 soniyada bir avto
 
 Bu — sinf/markaz ichidagi foydalanish uchun yengil himoya darajasi: bitta umumiy parol orqali kirish. Bank yoki to'lov tizimi darajasidagi himoya emas, lekin o'quvchilar tasodifan yoki ataylab ballarni o'zgartirib qo'yishining oldini oladi. Parolni faqat o'zingiz va ishonchli hamkasblaringiz bilan baham ko'ring.
 
-## 5. Lokal test qilish (ixtiyoriy)
+## 5. Agar "500 Internal Server Error" chiqsa (Blobs bazasiga ulanish xatosi)
+
+Ba'zan Netlify yangi saytlarda Blobs bazasiga avtomatik ulanishda muammo bo'ladi. Buni **doimiy va ishonchli** hal qilish uchun qo'lda token bilan ulash kerak:
+
+1. Netlify'da yuqori o'ng burchakdagi profil rasmingizga bosing → **User settings**.
+2. Chap menyudan **Applications** → **Personal access tokens** → **New access token**.
+3. Nom bering (masalan `turnir-blobs`), yarating va chiqqan tokenni nusxalab oling (bu faqat bir marta ko'rsatiladi!).
+4. Saytingizga qayting → **Site configuration → Environment variables → Add a variable**:
+   - Key: `NETLIFY_BLOBS_TOKEN`
+   - Value: nusxalagan token
+5. **Deploys → Trigger deploy → Deploy site** orqali qayta deploy qiling.
+
+Kod avtomatik ravishda shu tokenni topsa, aynan shu orqali (ishonchli usulda) ulanadi; token bo'lmasa, Netlify'ning avtomatik usuliga qaytadi.
+
+**Xatoning aniq sababini ko'rish uchun:** Netlify saytida **Logs → Functions** bo'limiga kiring, `get-data` funksiyasini tanlang va so'nggi so'rov jurnalini o'qing — u yerda xato matni to'liq ko'rinadi. Shuningdek brauzerda **F12 → Network** bo'limidan `get-data` so'rovini bosib, "Response" qismidan xato tafsilotini ko'rishingiz mumkin (saytning yangi versiyasi bu tafsilotni endi ekranda ham ko'rsatadi).
+
+## 6. Lokal test qilish (ixtiyoriy)
 
 ```bash
 npm install -g netlify-cli

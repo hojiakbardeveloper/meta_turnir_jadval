@@ -111,7 +111,12 @@ function showToast(msg, isErr){
 
 async function fetchData(){
   const res = await fetch('/api/get-data', {cache:'no-store'});
-  DATA = await res.json();
+  const json = await res.json();
+  if(!res.ok || !Array.isArray(json.teams)){
+    const msg = json && json.detail ? (json.error + ': ' + json.detail) : (json && json.error) || 'Nomalum xatolik';
+    throw new Error(msg);
+  }
+  DATA = json;
 }
 
 function populateSelects(){
@@ -186,8 +191,16 @@ function showLogin(err){
 async function showAdmin(){
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminScreen').style.display = 'block';
-  await fetchData();
-  populateSelects();
+  try{
+    await fetchData();
+    populateSelects();
+  }catch(e){
+    document.getElementById('adminScreen').innerHTML =
+      '<div class="card"><h3>Ma\'lumotlarni yuklab bo\'lmadi</h3>' +
+      '<p style="color:var(--muted); font-size:13px; line-height:1.6;">' + escapeHtml(e.message) + '</p>' +
+      '<p style="color:var(--muted); font-size:13px;">Netlify saytida <b>Functions</b> bo\'limidan <code>get-data</code> jurnalini (logs) tekshiring, yoki README dagi "Muammolarni bartaraf etish" bo\'limiga qarang.</p>' +
+      '<button class="btn secondary" onclick="location.reload()">Qayta urinish</button></div>';
+  }
 }
 
 document.getElementById('loginBtn').addEventListener('click', async () => {

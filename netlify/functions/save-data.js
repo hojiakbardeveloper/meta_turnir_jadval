@@ -3,6 +3,17 @@ const { connectLambda, getStore } = require("@netlify/blobs");
 const FIELDS = ["site", "tez", "kahoot1", "ai", "cs", "pubg", "futbol", "shashka", "mantiq", "matkahoot"];
 const MAX = { site: 20, tez: 10, kahoot1: 10, ai: 10, cs: 5, pubg: 5, futbol: 5, shashka: 5, mantiq: 15, matkahoot: 15 };
 
+// Prefer explicit siteID + token when NETLIFY_BLOBS_TOKEN is set (reliable),
+// fall back to Netlify's automatic context injection otherwise.
+function openStore() {
+  const siteID = process.env.SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) {
+    return getStore({ name: "turnir", siteID, token, consistency: "strong" });
+  }
+  return getStore({ name: "turnir", consistency: "strong" });
+}
+
 exports.handler = async (event) => {
   connectLambda(event);
 
@@ -53,7 +64,7 @@ exports.handler = async (event) => {
   const cleanData = { teams: cleanTeams, scores: cleanScores };
 
   try {
-    const store = getStore({ name: "turnir", consistency: "strong" });
+    const store = openStore();
     await store.setJSON("data", cleanData);
     return {
       statusCode: 200,
@@ -63,7 +74,8 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ ok: false, error: "Saqlashda xatolik", detail: String(err) }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ok: false, error: "Saqlashda xatolik", detail: String(err && err.message ? err.message : err) }),
     };
   }
 };

@@ -19,9 +19,33 @@ function defaultData() {
   return { teams, scores };
 }
 
+// Prefer explicit siteID + token when NETLIFY_BLOBS_TOKEN is set (reliable),
+// fall back to Netlify's automatic context injection otherwise.
+function openStore() {
+  const siteID = process.env.SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) {
+    return getStore({ name: "turnir", siteID, token, consistency: "strong" });
+  }
+  return getStore({ name: "turnir", consistency: "strong" });
+}
+
 exports.handler = async (event) => {
   connectLambda(event);
-  const store = getStore({ name: "turnir", consistency: "strong" });
+
+  let store;
+  try {
+    store = openStore();
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Blobs bazasiga ulanib bo'lmadi",
+        detail: String(err && err.message ? err.message : err),
+      }),
+    };
+  }
 
   try {
     let data = await store.get("data", { type: "json" });
@@ -37,7 +61,8 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Ma'lumotlarni o'qishda xatolik", detail: String(err) }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Ma'lumotlarni o'qishda xatolik", detail: String(err && err.message ? err.message : err) }),
     };
   }
 };

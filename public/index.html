@@ -48,8 +48,12 @@ function escapeHtml(str){ const d=document.createElement('div'); d.textContent=s
 
 async function fetchData(){
   const res = await fetch('/api/get-data', {cache:'no-store'});
-  if(!res.ok) throw new Error('fetch failed');
-  DATA = await res.json();
+  const json = await res.json();
+  if(!res.ok || !Array.isArray(json.teams)){
+    const msg = json && json.detail ? (json.error + ': ' + json.detail) : (json && json.error) || 'Nomalum xatolik';
+    throw new Error(msg);
+  }
+  DATA = json;
 }
 
 function getSortedTeams(){
@@ -135,7 +139,7 @@ async function tick(){
     await fetchData();
     renderBoard();
   }catch(e){
-    document.getElementById('boardList').innerHTML = '<div class="loading">Ma\'lumotlarni yuklab bo\'lmadi. Internetni tekshiring.</div>';
+    document.getElementById('boardList').innerHTML = '<div class="loading">Ma\'lumotlarni yuklab bo\'lmadi: ' + escapeHtml(e.message) + '</div>';
   }
 }
 
