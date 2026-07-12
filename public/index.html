@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Turnir — Reyting</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">IT</div>
+      <div class="brand-title">Turnir · <span>Reyting</span></div>
+    </div>
+    <div class="live"><span class="dot"></span>Jonli</div>
+  </div>
+
+  <div id="podium" class="podium" style="display:none;"></div>
+
+  <div class="toolbar">
+    <div class="toggle" id="filterToggle">
+      <button class="on" data-f="all">Barchasi</button>
+      <button data-f="qualified">Faqat saralangan</button>
+    </div>
+    <div class="count" id="boardCount"></div>
+  </div>
+
+  <div id="boardList"><div class="loading">Yuklanmoqda…</div></div>
+  <div class="updated" id="updated"></div>
+</div>
+
+<script>
+const FIELDS = ['site','tez','kahoot1','ai','cs','pubg','futbol','shashka','mantiq','matkahoot'];
+const DASTUR_FIELDS = ['site','tez','kahoot1','ai'];
+const KIBER_FIELDS = ['cs','pubg'];
+const SPORT_FIELDS = ['futbol','shashka'];
+const LOGIKA_FIELDS = ['mantiq','matkahoot'];
+const QUALIFY_MIN = 35;
+
+let DATA = null;
+let currentFilter = 'all';
+
+function emptyScores(){ const s={}; FIELDS.forEach(f=>s[f]=0); return s; }
+function sumFields(scores, fields){ return fields.reduce((a,f)=>a+(Number(scores[f])||0),0); }
+function teamTotal(scores){ return sumFields(scores, FIELDS); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function fetchData(){
+  const res = await fetch('/api/get-data', {cache:'no-store'});
+  if(!res.ok) throw new Error('fetch failed');
+  DATA = await res.json();
+}
+
+function getSortedTeams(){
+  let teams = DATA.teams.slice();
+  if(currentFilter === 'qualified'){
+    teams = teams.filter(t => sumFields(DATA.scores[t.id]||emptyScores(), DASTUR_FIELDS) >= QUALIFY_MIN);
+  }
+  teams.sort((a,b) => teamTotal(DATA.scores[b.id]||emptyScores()) - teamTotal(DATA.scores[a.id]||emptyScores()));
+  return teams;
+}
+
+function renderPodium(teams){
+  const pod = document.getElementById('podium');
+  const top3 = teams.slice(0,3);
+  if(top3.length < 3){ pod.style.display='none'; return; }
+  pod.style.display='grid';
+  const classes = ['p1','p2','p3'];
+  const medals = ['1','2','3'];
+  pod.innerHTML = top3.map((t, i) => {
+    const total = teamTotal(DATA.scores[t.id]||emptyScores());
+    return `<div class="pod-card ${classes[i]}">
+      <div class="pod-medal">${medals[i]}</div>
+      <div class="pod-name">${escapeHtml(t.name)}</div>
+      <div class="pod-score">${total}<small>/ 100</small></div>
+    </div>`;
+  }).join('');
+}
+
+function renderBoard(){
+  const teams = getSortedTeams();
+  renderPodium(teams);
+
+  const list = document.getElementById('boardList');
+  document.getElementById('boardCount').textContent = teams.length + ' ta jamoa';
+
+  const rest = teams.slice(teams.length >= 3 ? 3 : 0);
+
+  if(teams.length === 0){
+    list.innerHTML = '<div class="loading">Jamoalar topilmadi</div>';
+    return;
+  }
+
+  list.innerHTML = rest.map((t) => {
+    const idx = teams.indexOf(t);
+    const s = DATA.scores[t.id] || emptyScores();
+    const dastur = sumFields(s, DASTUR_FIELDS), kiber = sumFields(s, KIBER_FIELDS);
+    const sport = sumFields(s, SPORT_FIELDS), logika = sumFields(s, LOGIKA_FIELDS);
+    const total = dastur + kiber + sport + logika;
+    const qualified = dastur >= QUALIFY_MIN;
+    const badge = qualified
+      ? '<span class="badge ok">Saralangan</span>'
+      : '<span class="badge no">Chetlashtirilgan</span>';
+    return `
+      <div class="row">
+        <div class="rank">${idx+1}</div>
+        <div>
+          <div class="name">${escapeHtml(t.name)}${badge}</div>
+          <div class="bars">
+            <div class="bar" title="Dasturlash ${dastur}/50"><i style="width:${(dastur/50*100)}%; background:var(--teal);"></i></div>
+            <div class="bar" title="Kiber sport ${kiber}/10"><i style="width:${(kiber/10*100)}%; background:var(--gold);"></i></div>
+            <div class="bar" title="Sport ${sport}/10"><i style="width:${(sport/10*100)}%; background:var(--bronze);"></i></div>
+            <div class="bar" title="Logika ${logika}/30"><i style="width:${(logika/30*100)}%; background:var(--silver);"></i></div>
+          </div>
+        </div>
+        <div class="total">${total}<small>/ 100</small></div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('updated').textContent = 'Oxirgi yangilanish: ' + new Date().toLocaleTimeString('uz-UZ');
+}
+
+document.querySelectorAll('#filterToggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#filterToggle button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    currentFilter = btn.dataset.f;
+    renderBoard();
+  });
+});
+
+async function tick(){
+  try{
+    await fetchData();
+    renderBoard();
+  }catch(e){
+    document.getElementById('boardList').innerHTML = '<div class="loading">Ma\'lumotlarni yuklab bo\'lmadi. Internetni tekshiring.</div>';
+  }
+}
+
+tick();
+setInterval(tick, 5000);
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Turnir — Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div id="loginScreen" class="login-wrap">
+    <div class="login-card">
+      <h1>Admin panel</h1>
+      <p>Ballarni kiritish uchun parolni tering</p>
+      <input type="password" id="passwordInput" placeholder="Parol" autofocus>
+      <button class="btn" id="loginBtn">Kirish</button>
+      <div class="error" id="loginError"></div>
+    </div>
+  </div>
+
+  <div id="adminScreen" style="display:none;">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-mark">IT</div>
+        <div class="brand-title">Turnir · <span>Admin</span></div>
+      </div>
+      <button class="logout" id="logoutBtn">Chiqish</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="score">Ball qo'yish</button>
+      <button class="tab" data-tab="teams">Jamoalar</button>
+    </div>
+
+    <div class="panel active" id="panel-score">
+      <div class="card">
+        <h3>Jamoani tanlang</h3>
+        <select id="teamSelect"></select>
+      </div>
+
+      <div class="card">
+        <h3>1-bosqich · Dasturlash (jami 50, o'tish uchun min. 35)</h3>
+        <div class="field"><label>Sayt qurish <span class="max">/ 20</span></label><input type="number" id="f-site" min="0" max="20"></div>
+        <div class="field"><label>Tez yozish <span class="max">/ 10</span></label><input type="number" id="f-tez" min="0" max="10"></div>
+        <div class="field"><label>Kahoot <span class="max">/ 10</span></label><input type="number" id="f-kahoot1" min="0" max="10"></div>
+        <div class="field"><label>AI bilan loyiha <span class="max">/ 10</span></label><input type="number" id="f-ai" min="0" max="10"></div>
+      </div>
+
+      <div class="card">
+        <h3>2-bosqich · Kiber sport (jami 10)</h3>
+        <div class="field"><label>Counter-Strike <span class="max">/ 5</span></label><input type="number" id="f-cs" min="0" max="5"></div>
+        <div class="field"><label>PUBG Mobile <span class="max">/ 5</span></label><input type="number" id="f-pubg" min="0" max="5"></div>
+      </div>
+
+      <div class="card">
+        <h3>3-bosqich · Sport (jami 10)</h3>
+        <div class="field"><label>Futbol <span class="max">/ 5</span></label><input type="number" id="f-futbol" min="0" max="5"></div>
+        <div class="field"><label>Shashka <span class="max">/ 5</span></label><input type="number" id="f-shashka" min="0" max="5"></div>
+      </div>
+
+      <div class="card">
+        <h3>4-bosqich · Logika (jami 30)</h3>
+        <div class="field"><label>Mantiqiy savollar <span class="max">/ 15</span></label><input type="number" id="f-mantiq" min="0" max="15"></div>
+        <div class="field"><label>Matematik Kahoot <span class="max">/ 15</span></label><input type="number" id="f-matkahoot" min="0" max="15"></div>
+      </div>
+
+      <button class="btn" id="saveBtn">Ballarni saqlash</button>
+      <div class="toast" id="toast">Saqlandi ✓</div>
+    </div>
+
+    <div class="panel" id="panel-teams">
+      <div class="card">
+        <h3>Jamoa nomini tahrirlash</h3>
+        <div class="two-col">
+          <select id="renameSelect"></select>
+          <input type="text" id="renameInput" placeholder="Yangi nom">
+        </div>
+        <br>
+        <button class="btn secondary" id="renameBtn">Nomni yangilash</button>
+      </div>
+      <div class="card">
+        <h3>Eslatma</h3>
+        <p style="color:var(--muted); font-size:13px; line-height:1.5;">
+          50 ta jamoa avtomatik "1-guruh" … "50-guruh" nomlari bilan yaratilgan.
+          Har birini haqiqiy sinf nomiga (masalan "9-A") shu yerda o'zgartiring.
+          O'zgarishlar reyting sahifasida darhol ko'rinadi.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FIELDS = ['site','tez','kahoot1','ai','cs','pubg','futbol','shashka','mantiq','matkahoot'];
+const MAX = {site:20,tez:10,kahoot1:10,ai:10,cs:5,pubg:5,futbol:5,shashka:5,mantiq:15,matkahoot:15};
+
+let DATA = null;
+let PASSWORD = sessionStorage.getItem('tj_pw') || null;
+
+function emptyScores(){ const s={}; FIELDS.forEach(f=>s[f]=0); return s; }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+function showToast(msg, isErr){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+async function fetchData(){
+  const res = await fetch('/api/get-data', {cache:'no-store'});
+  DATA = await res.json();
+}
+
+function populateSelects(){
+  const teamSelect = document.getElementById('teamSelect');
+  const renameSelect = document.getElementById('renameSelect');
+  const opts = DATA.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  teamSelect.innerHTML = opts;
+  renameSelect.innerHTML = opts;
+  loadScoreForm(teamSelect.value);
+}
+
+function loadScoreForm(teamId){
+  const s = DATA.scores[teamId] || emptyScores();
+  FIELDS.forEach(f => { document.getElementById('f-'+f).value = s[f] || 0; });
+}
+
+async function saveScores(){
+  const teamId = document.getElementById('teamSelect').value;
+  const s = {};
+  FIELDS.forEach(f => {
+    let v = Number(document.getElementById('f-'+f).value) || 0;
+    v = Math.max(0, Math.min(MAX[f], v));
+    s[f] = v;
+    document.getElementById('f-'+f).value = v;
+  });
+  DATA.scores[teamId] = s;
+  await pushData('Saqlandi ✓');
+}
+
+async function renameTeam(){
+  const id = document.getElementById('renameSelect').value;
+  const newName = document.getElementById('renameInput').value.trim();
+  if(!newName) return;
+  const t = DATA.teams.find(x => x.id === id);
+  if(t){
+    t.name = newName;
+    await pushData('Nom yangilandi ✓');
+    populateSelects();
+    document.getElementById('renameInput').value = '';
+  }
+}
+
+async function pushData(successMsg){
+  try{
+    const res = await fetch('/api/save-data', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password: PASSWORD, data: DATA})
+    });
+    const json = await res.json();
+    if(!res.ok || !json.ok){
+      if(res.status === 401){
+        sessionStorage.removeItem('tj_pw');
+        showLogin('Sessiya tugadi, qayta kiring.');
+        return;
+      }
+      throw new Error(json.error || 'Xatolik');
+    }
+    DATA = json.data;
+    showToast(successMsg, false);
+  }catch(e){
+    showToast('Saqlashda xatolik yuz berdi', true);
+  }
+}
+
+function showLogin(err){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('loginError').textContent = err || '';
+}
+
+async function showAdmin(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'block';
+  await fetchData();
+  populateSelects();
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const pw = document.getElementById('passwordInput').value;
+  if(!pw) return;
+  try{
+    const res = await fetch('/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pw})
+    });
+    const json = await res.json();
+    if(json.ok){
+      PASSWORD = pw;
+      sessionStorage.setItem('tj_pw', pw);
+      showAdmin();
+    } else {
+      document.getElementById('loginError').textContent = json.error || 'Parol noto\'g\'ri';
+    }
+  }catch(e){
+    document.getElementById('loginError').textContent = 'Serverga ulanib bo\'lmadi';
+  }
+});
+
+document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('tj_pw');
+  PASSWORD = null;
+  showLogin();
+});
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('teamSelect').addEventListener('change', (e) => loadScoreForm(e.target.value));
+document.getElementById('saveBtn').addEventListener('click', saveScores);
+document.getElementById('renameBtn').addEventListener('click', renameTeam);
+
+// Auto-login if a password is already stored in this browser tab session
+if(PASSWORD){
+  fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: PASSWORD})})
+    .then(r => r.json())
+    .then(j => { if(j.ok){ showAdmin(); } else { sessionStorage.removeItem('tj_pw'); showLogin(); } })
+    .catch(() => showLogin());
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
