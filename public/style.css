@@ -179,6 +179,29 @@ input[type=number]{font-family:ui-monospace,monospace; text-align:center;}
 .callout{background:rgba(52,209,191,.08); border:1px solid rgba(52,209,191,.3); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--text); margin-top:8px;}
 .callout.warn{background:rgba(229,72,77,.08); border-color:rgba(229,72,77,.3);}
 
+/* Bracket */
+.sport-tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.sport-tab{padding:9px 16px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); color:var(--muted); font-size:13px; font-weight:700; cursor:pointer;}
+.sport-tab.active{background:var(--teal); color:#06231F; border-color:var(--teal);}
+.bracket-scroll{overflow-x:auto; padding-bottom:10px;}
+.bracket-wrap{display:flex; gap:34px; align-items:stretch; min-width:max-content; padding:6px 2px;}
+.bracket-round{display:flex; flex-direction:column; justify-content:space-around; gap:14px; min-width:190px;}
+.bracket-round-label{font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:700; text-align:center; margin-bottom:6px;}
+.bmatch{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+.bslot{display:flex; align-items:center; justify-content:space-between; gap:6px; padding:8px 10px; font-size:12.5px; border-bottom:1px solid var(--line);}
+.bslot:last-child{border-bottom:none;}
+.bslot.win{background:rgba(52,209,191,.12); color:var(--teal); font-weight:700;}
+.bslot.empty{color:var(--muted); font-style:italic;}
+.bslot button{background:var(--panel2); border:1px solid var(--line); color:var(--text); font-size:11px; padding:3px 8px; border-radius:6px; cursor:pointer;}
+.bslot button:hover{border-color:var(--teal);}
+.champion-card{background:linear-gradient(135deg, rgba(245,185,66,.15), rgba(245,185,66,.02)); border:1px solid rgba(245,185,66,.4); border-radius:14px; padding:18px; text-align:center; margin-top:16px;}
+.champion-card .medal{font-size:28px;}
+.champion-card .name{font-size:18px; font-weight:800; margin-top:6px;}
+.team-picklist{max-height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:8px;}
+.team-picklist label{display:flex; align-items:center; gap:8px; padding:6px 8px; font-size:13px; border-radius:6px;}
+.team-picklist label:hover{background:var(--panel2);}
+.team-picklist input{width:auto;}
+
 @media (max-width:520px){
   .podium{gap:8px;}
   .pod-name{font-size:12px;}

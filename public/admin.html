@@ -31,6 +31,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="score">Ball qo'yish</button>
       <button class="tab" data-tab="teams">Jamoalar</button>
+      <button class="tab" data-tab="bracket">Qura tashlash</button>
     </div>
 
     <div class="panel active" id="panel-score">
@@ -88,17 +89,50 @@
         </p>
       </div>
     </div>
+
+    <div class="panel" id="panel-bracket">
+      <div class="sport-tabs" id="sportTabs">
+        <button class="sport-tab active" data-sport="futbol">⚽ Futbol</button>
+        <button class="sport-tab" data-sport="cs">🎯 Counter-Strike</button>
+        <button class="sport-tab" data-sport="pubg">🎮 PUBG Mobile</button>
+        <button class="sport-tab" data-sport="shashka">♟️ Shashka</button>
+      </div>
+
+      <div class="card" id="drawSetupCard">
+        <h3>Ishtirokchi jamoalarni tanlang</h3>
+        <p style="color:var(--muted); font-size:12px; margin-bottom:10px;">
+          Standart holatda Dasturlash bosqichida 35+ ball to'plagan (saralangan) jamoalar belgilangan. Kerak bo'lsa o'zgartiring.
+        </p>
+        <div class="team-picklist" id="teamPicklist"></div>
+        <button class="btn" id="drawBtn" style="margin-top:12px;">🎲 Qura tashlash (yangi setka yaratish)</button>
+        <div class="error" id="drawError"></div>
+      </div>
+
+      <div class="card" id="existingBracketCard" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">Joriy setka</h3>
+          <button class="btn secondary" id="resetBracketBtn" style="width:auto; margin:0; padding:6px 12px; font-size:12px;">Qayta tashlash</button>
+        </div>
+        <div id="bracketContainer"></div>
+      </div>
+
+      <div class="toast" id="bracketToast">Saqlandi ✓</div>
+    </div>
   </div>
 </div>
 
+<script src="bracket.js"></script>
 <script>
 const FIELDS = ['site','tez','kahoot1','ai','cs','pubg','futbol','shashka','mantiq','matkahoot'];
 const MAX = {site:20,tez:10,kahoot1:10,ai:10,cs:5,pubg:5,futbol:5,shashka:5,mantiq:15,matkahoot:15};
+const DASTUR_FIELDS = ['site','tez','kahoot1','ai'];
+const QUALIFY_MIN = 35;
 
 let DATA = null;
 let PASSWORD = sessionStorage.getItem('tj_pw') || null;
 
 function emptyScores(){ const s={}; FIELDS.forEach(f=>s[f]=0); return s; }
+function sumFields(scores, fields){ return fields.reduce((a,f)=>a+(Number(scores[f])||0),0); }
 function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 
 function showToast(msg, isErr){
@@ -239,12 +273,140 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'bracket'){
+      loadBracketTab();
+    }
   });
 });
 
 document.getElementById('teamSelect').addEventListener('change', (e) => loadScoreForm(e.target.value));
 document.getElementById('saveBtn').addEventListener('click', saveScores);
 document.getElementById('renameBtn').addEventListener('click', renameTeam);
+
+// ---------- Bracket (Qura tashlash) ----------
+let currentSport = 'futbol';
+let ALL_BRACKETS = {};
+
+function showBracketToast(msg, isErr){
+  const t = document.getElementById('bracketToast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function buildTeamPicklist(){
+  const box = document.getElementById('teamPicklist');
+  box.innerHTML = DATA.teams.map(t => {
+    const qualified = sumFields(DATA.scores[t.id] || emptyScores(), DASTUR_FIELDS) >= QUALIFY_MIN;
+    return `<label>
+      <input type="checkbox" value="${t.id}" ${qualified ? 'checked' : ''}>
+      ${escapeHtml(t.name)} ${qualified ? '' : '<span style="color:var(--muted); font-size:11px;">(saralanmagan)</span>'}
+    </label>`;
+  }).join('');
+}
+
+async function fetchBrackets(){
+  const res = await fetch('/api/bracket-get', {cache:'no-store'});
+  const json = await res.json();
+  if(!res.ok) throw new Error(json.error || 'Xatolik');
+  ALL_BRACKETS = json;
+}
+
+function refreshBracketView(){
+  const bracket = ALL_BRACKETS[currentSport];
+  const setupCard = document.getElementById('drawSetupCard');
+  const existingCard = document.getElementById('existingBracketCard');
+  if(bracket){
+    setupCard.style.display = 'none';
+    existingCard.style.display = 'block';
+    renderBracket(document.getElementById('bracketContainer'), bracket, true);
+  } else {
+    setupCard.style.display = 'block';
+    existingCard.style.display = 'none';
+    buildTeamPicklist();
+  }
+}
+
+document.querySelectorAll('#sportTabs .sport-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#sportTabs .sport-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSport = btn.dataset.sport;
+    refreshBracketView();
+  });
+});
+
+document.getElementById('drawBtn').addEventListener('click', async () => {
+  const checked = Array.from(document.querySelectorAll('#teamPicklist input:checked')).map(cb => cb.value);
+  const teams = checked.map(id => DATA.teams.find(t => t.id === id)).filter(Boolean);
+  const errEl = document.getElementById('drawError');
+  if(teams.length < 2){
+    errEl.textContent = 'Kamida 2 ta jamoa tanlang';
+    return;
+  }
+  errEl.textContent = '';
+  try{
+    const res = await fetch('/api/bracket-save', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password: PASSWORD, action:'draw', sport: currentSport, teams})
+    });
+    const json = await res.json();
+    if(!res.ok || !json.ok) throw new Error(json.error || 'Xatolik');
+    ALL_BRACKETS[currentSport] = json.data;
+    refreshBracketView();
+    showBracketToast('Qura tashlandi ✓', false);
+  }catch(e){
+    errEl.textContent = e.message;
+  }
+});
+
+document.getElementById('resetBracketBtn').addEventListener('click', async () => {
+  if(!confirm('Bu sport uchun setkani butunlay o\'chirib, qaytadan qura tashlaysizmi? Joriy natijalar yo\'qoladi.')) return;
+  try{
+    const res = await fetch('/api/bracket-save', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password: PASSWORD, action:'reset', sport: currentSport})
+    });
+    const json = await res.json();
+    if(!res.ok || !json.ok) throw new Error(json.error || 'Xatolik');
+    ALL_BRACKETS[currentSport] = null;
+    refreshBracketView();
+  }catch(e){
+    showBracketToast(e.message, true);
+  }
+});
+
+document.getElementById('bracketContainer').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-team]');
+  if(!btn) return;
+  const round = Number(btn.dataset.r);
+  const match = Number(btn.dataset.i);
+  const teamId = btn.dataset.team;
+  try{
+    const res = await fetch('/api/bracket-save', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password: PASSWORD, action:'setWinner', sport: currentSport, round, match, teamId})
+    });
+    const json = await res.json();
+    if(!res.ok || !json.ok) throw new Error(json.error || 'Xatolik');
+    ALL_BRACKETS[currentSport] = json.data;
+    renderBracket(document.getElementById('bracketContainer'), json.data, true);
+    showBracketToast('Saqlandi ✓', false);
+  }catch(e){
+    showBracketToast(e.message, true);
+  }
+});
+
+async function loadBracketTab(){
+  try{
+    await fetchBrackets();
+    refreshBracketView();
+  }catch(e){
+    document.getElementById('panel-bracket').insertAdjacentHTML('afterbegin',
+      '<div class="error" style="margin-bottom:10px;">Setkalarni yuklab bo\'lmadi: '+escapeHtml(e.message)+'</div>');
+  }
+}
 
 // Auto-login if a password is already stored in this browser tab session
 if(PASSWORD){

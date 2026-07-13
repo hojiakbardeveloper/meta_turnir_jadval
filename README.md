@@ -63,7 +63,18 @@ Kod avtomatik ravishda shu tokenni topsa, aynan shu orqali (ishonchli usulda) ul
 
 **Xatoning aniq sababini ko'rish uchun:** Netlify saytida **Logs → Functions** bo'limiga kiring, `get-data` funksiyasini tanlang va so'nggi so'rov jurnalini o'qing — u yerda xato matni to'liq ko'rinadi. Shuningdek brauzerda **F12 → Network** bo'limidan `get-data` so'rovini bosib, "Response" qismidan xato tafsilotini ko'rishingiz mumkin (saytning yangi versiyasi bu tafsilotni endi ekranda ham ko'rsatadi).
 
-## 6. Lokal test qilish (ixtiyoriy)
+## 7. Qura tashlash (setka) — Futbol, Counter-Strike, PUBG, Shashka
+
+Admin panelning **"Qura tashlash"** bo'limida:
+
+- Har bir sport turi uchun alohida sahifa: standart holatda Dasturlash bosqichida 35+ ball to'plagan (saralangan) jamoalar avtomatik belgilangan bo'ladi — xohlasangiz o'zgartirishingiz mumkin.
+- **"Qura tashlash"** tugmasi bosilganda jamoalar tasodifiy tartibda juftlanadi va jahon chempionati uslubidagi (yagona eliminatsiya) setka yaratiladi. Jamoalar soni 2 ning darajasiga to'g'ri kelmasa (masalan 37 ta), ba'zi jamoalarga birinchi bosqichda avtomatik "bye" (raqibsiz o'tish) beriladi.
+- Har bir o'yin natijasidan so'ng g'olibni bosib tanlang — u avtomatik ravishda keyingi bosqichga o'tadi. Final g'olibi aniqlanganda "🏆 Chempion" kartochkasi chiqadi.
+- **"Qayta tashlash"** tugmasi — agar xato ketsa yoki qaytadan boshlash kerak bo'lsa, shu sport uchun setkani butunlay o'chirib, yangidan qura tashlash imkonini beradi (tasdiqlash so'raladi).
+
+O'quvchilar `sizningsayt.netlify.app/setka` sahifasida barcha 4 sport bo'yicha setkani (kim kimga qarshi, kim g'olib chiqqani) jonli kuzatib borishlari mumkin — bu ham parolsiz, ochiq sahifa.
+
+## 8. Lokal test qilish (ixtiyoriy)
 
 ```bash
 npm install -g netlify-cli

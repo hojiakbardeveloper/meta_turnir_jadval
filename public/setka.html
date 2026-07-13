@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Turnir — Musobaqa setkasi</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">IT</div>
+      <div class="brand-title">Turnir · <span>Setka</span></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <a class="navlink" href="/">Reyting →</a>
+      <div class="live"><span class="dot"></span>Jonli</div>
+    </div>
+  </div>
+
+  <div class="sport-tabs" id="sportTabs">
+    <button class="sport-tab active" data-sport="futbol">⚽ Futbol</button>
+    <button class="sport-tab" data-sport="cs">🎯 Counter-Strike</button>
+    <button class="sport-tab" data-sport="pubg">🎮 PUBG Mobile</button>
+    <button class="sport-tab" data-sport="shashka">♟️ Shashka</button>
+  </div>
+
+  <div id="bracketContainer"><div class="loading">Yuklanmoqda…</div></div>
+</div>
+
+<script src="bracket.js"></script>
+<script>
+let ALL_BRACKETS = {};
+let currentSport = "futbol";
+
+async function fetchBrackets(){
+  const res = await fetch('/api/bracket-get', {cache:'no-store'});
+  const json = await res.json();
+  if(!res.ok) throw new Error(json.error || 'Xatolik');
+  ALL_BRACKETS = json;
+}
+
+function show(){
+  renderBracket(document.getElementById('bracketContainer'), ALL_BRACKETS[currentSport], false);
+}
+
+document.querySelectorAll('.sport-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sport-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSport = btn.dataset.sport;
+    show();
+  });
+});
+
+async function tick(){
+  try{
+    await fetchBrackets();
+    show();
+  }catch(e){
+    document.getElementById('bracketContainer').innerHTML = '<div class="loading">Yuklab bo\'lmadi: '+e.message+'</div>';
+  }
+}
+
+tick();
+setInterval(tick, 6000);
+</script>
+</body>
+</html>
