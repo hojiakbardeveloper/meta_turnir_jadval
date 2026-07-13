@@ -29,21 +29,29 @@ function nextPow2(n) {
 function generateBracket(teams) {
   const shuffled = shuffle(teams);
   const size = nextPow2(shuffled.length);
-  const slots = new Array(size).fill(null);
-  shuffled.forEach((t, i) => (slots[i] = t.id));
+  const byes = size - shuffled.length;
+  const totalMatches = size / 2;
 
+  let idx = 0;
   const round0 = [];
-  for (let i = 0; i < size / 2; i++) {
-    const a = slots[2 * i];
-    const b = slots[2 * i + 1];
-    let winner = null;
-    if (a && !b) winner = a;
-    if (b && !a) winner = b;
-    round0.push({ a, b, winner });
+  for (let m = 0; m < totalMatches; m++) {
+    if (m < byes) {
+      // bye match: one real team advances automatically, no opponent
+      const a = shuffled[idx++].id;
+      round0.push({ a, b: null, winner: a });
+    } else {
+      // full match: two real teams face off
+      const a = shuffled[idx++].id;
+      const b = shuffled[idx++].id;
+      round0.push({ a, b, winner: null });
+    }
   }
+  // Spread the bye matches randomly across the bracket instead of
+  // clustering them all on one side.
+  const shuffledRound0 = shuffle(round0.map((m, i) => ({ m, i }))).map((x) => x.m);
 
   const totalRounds = Math.log2(size);
-  const rounds = [round0];
+  const rounds = [shuffledRound0];
   for (let r = 1; r < totalRounds; r++) {
     const prev = rounds[r - 1];
     const matches = [];
