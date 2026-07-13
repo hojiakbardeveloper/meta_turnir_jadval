@@ -7,3 +7,8 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+[[redirects]]
+  from = "/qoidalar"
+  to = "/qoidalar.html"
+  status = 200

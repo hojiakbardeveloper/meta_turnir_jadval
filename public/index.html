@@ -10,13 +10,16 @@
 <div class="wrap">
   <div class="header">
     <div class="brand">
-      <div class="brand-mark">META</div>
+      <div class="brand-mark">IT</div>
       <div class="brand-title">Turnir · <span>Reyting</span></div>
     </div>
-    <div class="live"><span class="dot"></span>Jonli</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <a class="navlink" href="/qoidalar">Qoidalar →</a>
+      <div class="live"><span class="dot"></span>Jonli</div>
+    </div>
   </div>
 
-  <div id="podium" class="podium"></div>
+  <div id="podium" class="podium" style="display:none;"></div>
 
   <div class="toolbar">
     <div class="toggle" id="filterToggle">
@@ -105,7 +108,7 @@ function renderBoard(){
     const qualified = dastur >= QUALIFY_MIN;
     const badge = qualified
       ? '<span class="badge ok">Saralangan</span>'
-      : '<span class="badge no"></span>';
+      : '<span class="badge no">Chetlashtirilgan</span>';
     return `
       <div class="row">
         <div class="rank">${idx+1}</div>

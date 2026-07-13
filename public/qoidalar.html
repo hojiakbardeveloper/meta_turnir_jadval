@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Turnir — Qoidalar va baholash mezoni</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">IT</div>
+      <div class="brand-title">Turnir · <span>Qoidalar</span></div>
+    </div>
+    <a class="navlink" href="/">Reytingni ko'rish →</a>
+  </div>
+
+  <div class="hero">
+    <h1>Musobaqa shartlari va baholash mezoni</h1>
+    <p>Turnir 4 ta bosqichdan iborat. Har bir bosqichda jamoangiz ball to'playdi, yig'indi ball bo'yicha umumiy reyting aniqlanadi. Quyida har bir bosqichning shartlari, qatnashuvchilar soni va ball taqsimoti batafsil yozilgan — tayyorgarlikni shularga qarab rejalashtiring.</p>
+    <div class="total-badge">🏆 Jami maksimal ball: 100</div>
+  </div>
+
+  <div class="toc">
+    <a href="#s1">1. Dasturlash · 50 ball</a>
+    <a href="#s2">2. Kiber sport · 10 ball</a>
+    <a href="#s3">3. Sport · 10 ball</a>
+    <a href="#s4">4. Logika · 30 ball</a>
+  </div>
+
+  <!-- STAGE 1 -->
+  <div class="stage stage-1 open" id="s1">
+    <div class="stage-head" onclick="toggleStage(this)">
+      <div class="stage-num">1</div>
+      <div class="stage-title">
+        <h2>Dasturlash</h2>
+        <span>Jami 50 ball · Keyingi bosqichga o'tish uchun kamida 35 ball (70%) kerak</span>
+      </div>
+      <div class="stage-chevron">▾</div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+
+        <div class="callout warn">⚠️ Bu bosqich hal qiluvchi: jami 4 komponentdan yig'ilgan guruh balingiz <b>35 balldan kam</b> bo'lsa, jamoangiz 2, 3 va 4-bosqichlarga o'tolmaydi.</div>
+
+        <div class="item">
+          <div class="item-head"><h3>1.1 Sayt qurish</h3><span class="pts">20 ball</span></div>
+          <p><b>Baholash:</b> Har bir o'quvchiga o'z darajasiga mos topshiriq beriladi (1-2 oylik, 2-4 oylik, 4-10 oylik o'quvchilar uchun alohida topshiriqlar) va 20 balllik tizimda baholanadi. Guruhdagi barcha o'quvchilar balining o'rtachasi guruh bali sifatida hisoblanadi.</p>
+          <p><b>Qoida:</b> Sun'iy intellektdan foydalanish taqiqlanadi — aniqlansa, umumiy guruh balidan <b>10 ball jarima</b> yechiladi. Topshiriqqa qanchalik aniq va o'xshash bajarilsa, shuncha yuqori ball beriladi.</p>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>1.2 Tez yozish</h3><span class="pts">10 ball</span></div>
+          <p><b>Qoida:</b> Har bir o'quvchiga 30 soniyadan 3 marta yozish imkoniyati beriladi. Har safar Tezlik (WPM) va Aniqlik (ACC) natijalari yig'indisi 3 ga bo'linib, o'quvchining o'rtacha natijasi topiladi. Guruhdagi barcha o'quvchilar natijalarining o'rtachasi guruh natijasi hisoblanadi.</p>
+          <p><b>Baholash (barcha jamoalar orasidagi o'ringa qarab):</b></p>
+          <div class="rankband">
+            <div><b>1–5-o'rin</b> — 10 ball</div>
+            <div><b>6–10-o'rin</b> — 8 ball</div>
+            <div><b>11–15-o'rin</b> — 6 ball</div>
+            <div><b>Qolganlar</b> — 4 ball</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>1.3 Kahoot</h3><span class="pts">10 ball</span></div>
+          <p><b>Qoida:</b> Jamoalar orasida qur'a tashlanadi, qur'a natijasiga ko'ra jamoalar o'zaro bellashadi. Har bir yosh/daraja guruhi uchun alohida savollar tayyorlanadi.</p>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>1.4 Sun'iy intellekt bilan loyiha yaratish</h3><span class="pts">10 ball</span></div>
+          <p><b>Baholash:</b> Saytning hajmi, undagi imkoniyatlar va responsivligi (telefon, planshetga moslashishi) yuqori ball olishga yordam beradi.</p>
+          <p><b>Qoida:</b> O'quvchi yaratgan loyihasi qanday ishlashini va qanday vazifalarni bajarishini aniq va mukammal qilib tushuntira olishi kerak.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 2 -->
+  <div class="stage stage-2" id="s2">
+    <div class="stage-head" onclick="toggleStage(this)">
+      <div class="stage-num">2</div>
+      <div class="stage-title">
+        <h2>Kiber sport</h2>
+        <span>Jami 10 ball</span>
+      </div>
+      <div class="stage-chevron">▾</div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+
+        <div class="item">
+          <div class="item-head"><h3>2.1 Counter-Strike 1.6</h3><span class="pts">5 ball</span></div>
+          <p><b>Qoida:</b> Jamoalar orasida qur'a tashlanadi, natijaga ko'ra o'zaro bellashadi. Har bir guruhdan 5 tadan o'quvchi qatnashadi.</p>
+          <div class="rankband">
+            <div><b>1-o'rin</b> — 5 ball</div>
+            <div><b>2-o'rin</b> — 4 ball</div>
+            <div><b>3-o'rin</b> — 3 ball</div>
+            <div><b>Qolganlar</b> — 1 ball</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>2.2 PUBG Mobile</h3><span class="pts">5 ball</span></div>
+          <p><b>Qoida:</b> Jamoalar orasida qur'a tashlanadi, natijaga ko'ra o'zaro bellashadi. Har bir guruhdan 4 tadan o'quvchi qatnashadi.</p>
+          <div class="rankband">
+            <div><b>1-o'rin</b> — 5 ball</div>
+            <div><b>2–5-o'rin</b> — 4 ball</div>
+            <div><b>6–8-o'rin</b> — 3 ball</div>
+            <div><b>Qolganlar</b> — 1 ball</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 3 -->
+  <div class="stage stage-3" id="s3">
+    <div class="stage-head" onclick="toggleStage(this)">
+      <div class="stage-num">3</div>
+      <div class="stage-title">
+        <h2>Sport</h2>
+        <span>Jami 10 ball</span>
+      </div>
+      <div class="stage-chevron">▾</div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+
+        <div class="item">
+          <div class="item-head"><h3>3.1 Futbol</h3><span class="pts">5 ball</span></div>
+          <p><b>Qoida:</b> 13 yoshdan katta o'quvchilar qatnashadi. Jamoalar orasida qur'a tashlanadi. Har bir guruhdan 5 tadan o'quvchi qatnashadi. Bir o'yinga 15 daqiqa vaqt beriladi — shu vaqt ichida bir jamoa 3 ta gol ursa, o'sha jamoa g'olib hisoblanadi va keyingi bosqichga o'tadi.</p>
+          <div class="rankband">
+            <div><b>1-o'rin</b> — 5 ball</div>
+            <div><b>2-o'rin</b> — 4 ball</div>
+            <div><b>3-o'rin</b> — 3 ball</div>
+            <div><b>Qolganlar</b> — 1 ball</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>3.2 Shashka</h3><span class="pts">5 ball</span></div>
+          <p><b>Qoida:</b> Jamoalar orasida qur'a tashlanadi. Har bir guruhdan 5 tadan o'quvchi qatnashadi — bir jamoa o'quvchilari ikkinchi jamoa o'quvchilari bilan shashka o'ynaydi. Qaysi jamoada g'alaba ko'p bo'lsa, o'sha jamoa yutgan hisoblanadi.</p>
+          <div class="rankband">
+            <div><b>1-o'rin</b> — 5 ball</div>
+            <div><b>2–5-o'rin</b> — 4 ball</div>
+            <div><b>6–8-o'rin</b> — 3 ball</div>
+            <div><b>Qolganlar</b> — 1 ball</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 4 -->
+  <div class="stage stage-4" id="s4">
+    <div class="stage-head" onclick="toggleStage(this)">
+      <div class="stage-num">4</div>
+      <div class="stage-title">
+        <h2>Logika</h2>
+        <span>Jami 30 ball</span>
+      </div>
+      <div class="stage-chevron">▾</div>
+    </div>
+    <div class="stage-body">
+      <div class="stage-body-inner">
+
+        <div class="item">
+          <div class="item-head"><h3>4.1 Mantiqiy savollar</h3><span class="pts">15 ball</span></div>
+          <p><b>Qoida:</b> Har bir guruhdan 6 tadan o'quvchi bir jamoa bo'lib qatnashadi (IQ test va kodlardagi xatolarni topish turidagi savollar). Jamoaga 15 tadan mantiqiy savol beriladi. Savollarga tez va aniq javob bergan jamoalarga ball beriladi.</p>
+          <div class="rankband">
+            <div><b>1-o'rin</b> — 5 ball</div>
+            <div><b>2–5-o'rin</b> — 4 ball</div>
+            <div><b>6–8-o'rin</b> — 3 ball</div>
+            <div><b>Qolganlar</b> — 1 ball</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="item-head"><h3>4.2 Matematik amallar bo'yicha Kahoot</h3><span class="pts">15 ball</span></div>
+          <p><b>Qoida:</b> Matematik amallar bo'yicha tezkor test Kahoot platformasida o'tkaziladi.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="updated" style="margin-top:30px;">Savollaringiz bo'lsa, mentoringizga murojaat qiling.</div>
+</div>
+
+<script>
+function toggleStage(headEl){
+  headEl.parentElement.classList.toggle('open');
+}
+</script>
+</body>
+</html>
