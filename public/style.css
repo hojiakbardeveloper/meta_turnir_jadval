@@ -185,7 +185,9 @@ input[type=number]{font-family:ui-monospace,monospace; text-align:center;}
 .sport-tab.active{background:var(--teal); color:#06231F; border-color:var(--teal);}
 .bracket-scroll{overflow-x:auto; padding-bottom:10px;}
 .bracket-wrap{display:flex; gap:34px; align-items:stretch; min-width:max-content; padding:6px 2px;}
-.bracket-round{display:flex; flex-direction:column; justify-content:space-around; gap:14px; min-width:190px;}
+.bracket-lines{position:absolute; top:0; left:0; pointer-events:none; z-index:0;}
+.bracket-lines line{stroke:var(--line); stroke-width:2;}
+.bracket-round{display:flex; flex-direction:column; justify-content:space-around; gap:14px; min-width:190px; position:relative; z-index:1;}
 .bracket-round-label{font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:700; text-align:center; margin-bottom:6px;}
 .bmatch{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
 .bslot{display:flex; align-items:center; justify-content:space-between; gap:6px; padding:8px 10px; font-size:12.5px; border-bottom:1px solid var(--line);}
